@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Admin – Thêm sim</title>
+<style>
+body{font-family:sans-serif;background:#120000;color:#fff;padding:20px}
+input,select,textarea,button{width:100%;margin:6px 0;padding:10px;border-radius:8px;border:none}
+button{background:#ffd700;font-weight:bold}
+</style>
+</head>
+<body>
+
+<h2>Thêm Sim Phong Thủy</h2>
+
+<input id="number" placeholder="Số sim">
+<select id="menh">
+<option>Kim</option><option>Mộc</option><option>Thủy</option><option>Hỏa</option><option>Thổ</option>
+</select>
+<input id="sao" placeholder="Sao phong thủy">
+<input id="price" type="number" placeholder="Giá">
+<textarea id="luan" placeholder="Luận ngắn"></textarea>
+<textarea id="detail" placeholder="Luận giải chi tiết"></textarea>
+
+<button onclick="addSim()">Lưu sim</button>
+
+<script>
+function addSim(){
+ let sims = JSON.parse(localStorage.getItem('sims')) || [];
+ sims.push({
+  number:number.value,
+  menh:menh.value,
+  sao:sao.value,
+  price:+price.value,
+  luan:luan.value,
+  detail:detail.value
+ });
+ localStorage.setItem('sims',JSON.stringify(sims));
+ alert("Đã thêm sim!");
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Sim Số Phong Thủy – Lọc theo năm sinh</title>
+<meta name="description" content="Lọc sim số phong thủy theo năm sinh, mệnh ngũ hành. Tư vấn trực tiếp Zalo.">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,BlinkMacSystemFont,sans-serif}
+body{background:linear-gradient(135deg,#8b0000,#120000);color:#fff;min-height:100vh}
+header{text-align:center;padding:20px}
+header h1{color:#ffd700;font-size:26px;margin-bottom:6px}
+header p{font-size:14px;opacity:.9}
+.container{max-width:1200px;margin:auto;padding:14px}
+.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+select,input{padding:10px;border-radius:10px;border:none;outline:none}
+.sim-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.sim-card{background:#140000;border-radius:16px;padding:14px;box-shadow:0 0 12px rgba(255,215,0,.2)}
+.sim-number{color:#ffd700;font-size:20px;font-weight:bold;margin-bottom:4px}
+.sim-info{font-size:13px;line-height:1.4;margin-bottom:6px}
+.luan-giai{font-size:13px;opacity:.9;margin-bottom:8px}
+.score{font-size:13px;color:#ffcc00;margin-bottom:8px}
+.price{color:#ffcc00;font-size:17px;font-weight:bold;margin-bottom:10px}
+.actions{display:flex;gap:8px}
+.btn{flex:1;padding:10px;border-radius:10px;font-weight:bold;border:none;cursor:pointer;text-align:center;text-decoration:none}
+.btn-buy{background:#ffd700;color:#000}
+.btn-zalo{background:transparent;color:#ffd700;border:1px solid #ffd700}
+footer{text-align:center;font-size:12px;opacity:.7;padding:16px}
+</style>
+</head>
+<body>
+<header>
+<h1>SIM SỐ PHONG THỦY</h1>
+<p>Nhập năm sinh – Lọc sim hợp mệnh – Luận giải sẵn</p>
+</header>
+
+<div class="container">
+<div class="filters">
+<select id="menh">
+<option value="">Chọn mệnh</option>
+<option>Kim</option><option>Mộc</option><option>Thủy</option><option>Hỏa</option><option>Thổ</option>
+</select>
+<input id="namsinh" type="number" placeholder="Năm sinh dương lịch">
+<input id="search" type="text" placeholder="Tìm số sim (68, 39, 888...)">
+</div>
+<div class="sim-list" id="simList"></div>
+</div>
+
+<footer>© 2025 Sim Số Phong Thủy • Tư vấn Zalo trực tiếp</footer>
+
+<script>
+const zaloLink = "https://zalo.me/0900000000"; // ĐỔI SỐ ZALO
+
+// LOAD SIM TỪ JSON ONLINE (KHÔNG CẦN SỬA CODE)
+const JSON_URL = "https://raw.githubusercontent.com/saki200008/sim-data/refs/heads/main/sim.json"; // ĐỔI ĐÚNG LINK RAW // đổi link
+let sims = [];
+
+async function loadSims(){
+  try{
+    const res = await fetch(JSON_URL, { cache: 'no-store' });
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    sims = await res.json();
+    console.log('Đã load sim:', sims);
+    render();
+  }catch(e){
+    console.error('Không tải được dữ liệu sim:', e);
+    simList.innerHTML = '<p style="opacity:.8">Không tải được dữ liệu sim</p>';
+  }
+}
+
+const simList = document.getElementById('simList');
+const menhSelect = document.getElementById('menh');
+const namSinhInput = document.getElementById('namsinh');
+const searchInput = document.getElementById('search');
+
+function getMenhFromYear(year){
+ if(!year) return '';
+ const can = year % 10;
+ const map = ['Kim','Kim','Thủy','Thủy','Mộc','Mộc','Hỏa','Hỏa','Thổ','Thổ'];
+ return map[can];
+}
+
+function scoreSim(sim){
+ let score = 60;
+ if(sim.number.includes('68')) score += 15;
+ if(sim.number.includes('39')) score += 10;
+ if(sim.number.includes('88')||sim.number.includes('999')) score += 15;
+ return Math.min(score,100);
+}
+
+function formatPrice(p){return p.toLocaleString('vi-VN')+' đ'}
+
+function render(){
+ simList.innerHTML='';
+ const menhYear = getMenhFromYear(namSinhInput.value);
+ sims.filter(s=>{
+  return (!menhSelect.value||s.menh===menhSelect.value) &&
+         (!namSinhInput.value||s.menh===menhYear) &&
+         (!searchInput.value||s.number.replace(/\s/g,'').includes(searchInput.value));
+ }).forEach(s=>{
+  const score = scoreSim(s);
+  simList.innerHTML += `
+  <div class="sim-card">
+    <div class="sim-number">${s.number}</div>
+    <div class="sim-info">Mệnh ${s.menh} • ${s.sao}</div>
+    <div class="luan-giai">${s.luan}</div>
+    <div class="score">Điểm phong thủy: <b>${score}/100</b></div>
+    <div class="price">${formatPrice(s.price)}</div>
+    <div class="actions">
+      <a class="btn btn-buy" href="${zaloLink}" target="_blank">Mua ngay</a>
+      <a class="btn btn-zalo" href="${zaloLink}" target="_blank">Zalo tư vấn</a>
+    </div>
+  </div>`;
+ });
+}
+
+menhSelect.onchange = render;
+namSinhInput.oninput = render;
+searchInput.oninput = render;
+
+loadSims();
+</script>
+</body>
+</html>

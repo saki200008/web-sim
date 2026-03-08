@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="stylesheet" href="./style.css">
+<title>Sim Số Phong Thủy – Lọc theo năm sinh</title>
+<meta name="description" content="Lọc sim số phong thủy theo năm sinh, mệnh ngũ hành. Tư vấn trực tiếp Zalo.">
+<style>
+
+</style>
+</head>
+<div id="popup" style="display:none;position:fixed;inset:0;background:rgba(107, 106, 106, 0.5);align-items:center;justify-content:center;z-index:99">
+  <div style="background:#292927;padding:20px;border-radius:16px;max-width:520px;width:92%">
+    <h3 id="pNumber" style="color:#ffd700; text-align:center; font-size:26px"></h3>
+    <p id="pDetail" style="font-size:14px;line-height:1.5;margin:10px 0; max-height: 660PX; overflow: auto;"></p>
+    <button onclick="closePopup()" style="width:100%;padding:10px;border:none;border-radius:10px;background:#ffd700;font-weight:bold">Đóng</button>
+  </div>
+</div>
+<body>
+<header>
+<h1>SIM SỐ PHONG THỦY</h1>
+<p>Nhập năm sinh – Lọc sim hợp mệnh – Luận giải sẵn</p>
+</header>
+
+<div class="container">
+<div class="filters">
+<select id="menh">
+<option value="">Chọn mệnh</option>
+<option value="K">Kim</option><option value="M">Mộc</option><option value="TH">Thủy</option><option value="H">Hỏa</option><option value="T">Thổ</option>
+</select>
+<select id="mang">
+<option value="">Chọn nhà mạng</option>
+<option value="VN">Vinaphone</option><option value="MB">Mobifone</option><option value="VT">Viettel</option>
+</select>
+<!-- <input id="nhamang" type="text" placeholder="Năm sinh dương lịch"> -->
+<input id="search" type="text" placeholder="Tìm số sim (68, 39, 888...)">
+</div>
+<div class="sim-list" id="simList"></div>
+</div>
+<div class="page" id="page"></div>
+<div class="pagination">
+  
+  <button id="btnPrev" class="page-btn prev">← Trang trước</button>
+  <button id="btnNext" class="page-btn next">Trang sau →</button>
+</div>
+<footer>© 2025 Sim Số Phong Thủy • Tư vấn Zalo trực tiếp</footer>
+
+<script src="./main.js"></script>
+</body>
+</html>
