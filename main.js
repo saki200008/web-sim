@@ -1,4 +1,4 @@
-const zaloLink = "https://zalo.me/0900000000"; // ĐỔI SỐ ZALO
+const zaloLink = "https://zalo.me/0978445351"; // ĐỔI SỐ ZALO
 
 // DATA SIM
 const BASE_URL = "https://raw.githubusercontent.com/saki200008/sim-data-v1/refs/heads/main/data/"; 

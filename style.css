@@ -24,9 +24,10 @@
     }
 
     header h1 {
-      font-size: 28px;
+      font-size: 40px;
       color: #ffd700;
       margin-bottom: 8px;
+      font-family: 'Ong-Do-Gia', sans-serif;
     }
 
     header p {
@@ -243,4 +244,10 @@
 
 ::-webkit-scrollbar-thumb:hover {
     background: #fcf81a;     /* hover effect */
+}
+
+.chu_y {
+  font-size: 12px;
+  text-align: center;
+  padding-top: 10px;
 }
