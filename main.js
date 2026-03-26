@@ -1,7 +1,9 @@
 const zaloLink = "https://zalo.me/0978445351"; // ĐỔI SỐ ZALO
 
 // DATA SIM
-const BASE_URL = "https://raw.githubusercontent.com/saki200008/sim-data-v1/refs/heads/main/data/"; 
+// const BASE_URL = "https://raw.githubusercontent.com/saki200008/sim-data-v1/refs/heads/main/data/"; 
+const BASE_URL = "https://cdn.jsdelivr.net/gh/saki200008/sim-data-v1@main/data/";
+
 
 let sims = [];
 let sims200 = [];
@@ -103,35 +105,37 @@ async function loadPage(page, tang=true){
   if (filter["menh"] || filter["mang"] || filter["search"]) {
     if (tang) {
       for (let i = filter["currentPage"]; i < filter["totalPage"]; i++) {
-      const res200 = await fetch(`${BASE_URL}page200_${i}.json`);
-      sims = await res200.json();
-      list_sim = sims.filter( s =>{
-        return (!filter["menh"] || s.me===filter["menh"]) &&
-              (!filter["mang"] || s.ma===filter["mang"]) &&
-              (!filter["search"] || s.so.replace(/\s/g,'').includes(filter["search"]))});
-        if (list_sim.length > 0) {  
-          page = i        
-          break;
-        } else {
-          list_sim = []
-        }
+        await sleep(300);
+        const res200 = await fetch(`${BASE_URL}page200_${i}.json`);
+        sims = await res200.json();
+        list_sim = sims.filter( s =>{
+          return (!filter["menh"] || s.me===filter["menh"]) &&
+                (!filter["mang"] || s.ma===filter["mang"]) &&
+                (!filter["search"] || s.so.replace(/\s/g,'').includes(filter["search"]))});
+          if (list_sim.length > 0) {  
+            page = i        
+            break;
+          } else {
+            list_sim = []
+          }
         
       }
 
     } else {
       for (let i = page; i > 0; i--) {
-      const res200 = await fetch(`${BASE_URL}page200_${i}.json`);
-      sims = await res200.json();
-      list_sim = sims.filter( s =>{
-        return (!filter["menh"] || s.me===filter["menh"]) &&
-              (!filter["mang"] || s.ma===filter["mang"]) &&
-              (!filter["search"] || s.so.replace(/\s/g,'').includes(filter["search"]))});
-        if (list_sim.length > 0) {  
-          page = i
-          break;
-        } else {
-          list_sim = []
-        }
+        await sleep(300);
+        const res200 = await fetch(`${BASE_URL}page200_${i}.json`);
+        sims = await res200.json();
+        list_sim = sims.filter( s =>{
+          return (!filter["menh"] || s.me===filter["menh"]) &&
+                (!filter["mang"] || s.ma===filter["mang"]) &&
+                (!filter["search"] || s.so.replace(/\s/g,'').includes(filter["search"]))});
+          if (list_sim.length > 0) {  
+            page = i
+            break;
+          } else {
+            list_sim = []
+          }
         
       }
     }
