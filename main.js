@@ -90,6 +90,7 @@ async function handler_change(key, value) {
   render(list_sim);
 
 }
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 async function loadPage(page, tang=true){
   const key = `sim_page_${page}`;
