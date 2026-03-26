@@ -2,11 +2,18 @@ const zaloLink = "https://zalo.me/0900000000"; // ĐỔI SỐ ZALO
 
 // DATA SIM
 const BASE_URL = "https://raw.githubusercontent.com/saki200008/sim-data-v1/refs/heads/main/data/"; 
-let pageSize;
-let total;
-let totalPage;
-let currentPage = 1;
+
 let sims = [];
+let sims200 = [];
+const filter = {
+  pageSize: 0,
+  total: 0,
+  totalPage: 0,
+  currentPage: 1,
+  menh:"",
+  mang:"",
+  search: ""
+}
 const map_menh = {"M": "Mộc", "T":"Thổ", "H":"Hỏa", "TH":"Thuỷ", "K":"Kim"}
 const map_mang = {"VT": "Viettel", "VN":"Vinaphone", "MB":"Mobifone"}
 const map_mau = {"M":"#00b6ff", "T":"#ff6f70", "H":"red", "TH":"#1dff1d", "K":"yellow"}
@@ -31,17 +38,10 @@ function getMenhFromYear(year){
 
 function formatPrice(p){return p.toLocaleString('vi-VN')}
 
-function render(){
+function render(sims){
  simList.innerHTML='';
- console.log(menhSelect.value)
- console.log(mangInput.value)
- console.log(searchInput.value)
-//  const menhYear = getMenhFromYear(mangInput.value);
- sims.filter( s =>{
-  return (!menhSelect.value||s.me===menhSelect.value) &&
-         (!mangInput.value||s.ma===mangInput.value) &&
-         (!searchInput.value||s.so.replace(/\s/g,'').includes(searchInput.value));
- }).forEach(s =>{
+ 
+ sims.forEach(s =>{
     let so_show = s.so.match(/.{1,3}/g)?.join(".") || so
   simList.innerHTML += `
   <div class="sim-card">
@@ -62,24 +62,98 @@ function render(){
 }
 
 
-menhSelect.onchange = render;
-mangInput.oninput = render;
-searchInput.oninput = render;
+menhSelect.addEventListener("change", e => handler_change("menh", e.target.value));
+mangInput.addEventListener("change", e => handler_change("mang", e.target.value));
+searchInput.addEventListener("input", e => handler_change("search", e.target.value));
 // render();
 
-async function loadPage(page){
-  const key = `sim_page_${page}`;
-  const cache = localStorage.getItem(key);
-  if(cache){
-    sims = JSON.parse(cache)
-    render();
-    return;
-  }
+function handler_filter(key, value) {
+  filter[key] = value
+}
+async function handler_change(key, value) {
+  
+  handler_filter(key, value)
+  
+  handler_filter("currentPage", 1)
+  page.innerText = `Trang: ${filter["currentPage"]}`
+  updatePaginationButtons()
+  const res200 = await fetch(`${BASE_URL}page200_${filter["currentPage"]}.json`);
+    sims = await res200.json();
+    
+    list_sim = sims.filter( s =>{
+      return (!filter["menh"]||s.me===filter["menh"]) &&
+            (!filter["mang"] || s.ma===filter["mang"]) &&
+            (!filter["search"] || s.so.replace(/\s/g,'').includes(filter["search"]))});
 
-  const res = await fetch(`${BASE_URL}page_${page}.json`);
-  sims = await res.json();
-  localStorage.setItem(key, JSON.stringify(sims));
-  render();
+  render(list_sim);
+
+}
+
+async function loadPage(page, tang=true){
+  const key = `sim_page_${page}`;
+  // const cache = localStorage.getItem(key);
+  let uapte_page = 1
+  let list_sim = []
+  // if(cache){
+  //   sims = JSON.parse(cache)
+  //   render(sims);
+  //   return;
+  // }
+  handler_filter("currentPage", page)
+  if (filter["menh"] || filter["mang"] || filter["search"]) {
+    if (tang) {
+      for (let i = filter["currentPage"]; i < filter["totalPage"]; i++) {
+      const res200 = await fetch(`${BASE_URL}page200_${i}.json`);
+      sims = await res200.json();
+      list_sim = sims.filter( s =>{
+        return (!filter["menh"] || s.me===filter["menh"]) &&
+              (!filter["mang"] || s.ma===filter["mang"]) &&
+              (!filter["search"] || s.so.replace(/\s/g,'').includes(filter["search"]))});
+        if (list_sim.length > 0) {  
+          page = i        
+          break;
+        } else {
+          list_sim = []
+        }
+        
+      }
+
+    } else {
+      for (let i = page; i > 0; i--) {
+      const res200 = await fetch(`${BASE_URL}page200_${i}.json`);
+      sims = await res200.json();
+      list_sim = sims.filter( s =>{
+        return (!filter["menh"] || s.me===filter["menh"]) &&
+              (!filter["mang"] || s.ma===filter["mang"]) &&
+              (!filter["search"] || s.so.replace(/\s/g,'').includes(filter["search"]))});
+        if (list_sim.length > 0) {  
+          page = i
+          break;
+        } else {
+          list_sim = []
+        }
+        
+      }
+    }
+    
+    
+  } else {
+    const res = await fetch(`${BASE_URL}page_${filter["currentPage"]}.json`);
+    sims = await res.json();
+    list_sim = sims
+  }
+  
+  // localStorage.setItem(key, JSON.stringify(sims));
+  if (list_sim.length > 0) {
+    filter["currentPage"] = page
+    
+    page.innerText = `Trang: ${filter["currentPage"]}`
+    
+  } else {
+    page.innerText = `Không có kết quả nào được tìm thấy`
+  }
+  render(list_sim);
+  
 }
 async function loadIndex(){
   const key = `index`; 
@@ -87,19 +161,19 @@ async function loadIndex(){
   const res = await fetch(`${BASE_URL}index.json`);
   const data = await res.json();
   const cache = localStorage.getItem(key);
-  pageSize = data.pageSize
-  total = data.total
-  totalPage = data.totalPages
+  filter["pageSize"] = data.pageSize
+  filter["total"] = data.total
+  filter["totalPage"] = data.totalPages
   if(cache){
     if (cache.version !== data.vesion) {
       localStorage.clear();      
     } else {
-      loadPage(currentPage)
+      loadPage(filter["currentPage"])
       return;
     }
   }
   localStorage.setItem(key, JSON.stringify(data));
-  loadPage(currentPage)
+  loadPage(filter["currentPage"])
   
 }
 async function loadSo(so){
@@ -109,7 +183,7 @@ async function loadSo(so){
 }
 
 
-page.innerText = `Trang: ${currentPage}`
+page.innerText = `Trang: ${filter["currentPage"]}`
 
 // btnLuan.addEventListener("click", (e) => {
 //   e.preventDefault()
@@ -132,22 +206,42 @@ function closePopup(){
 }
 
 btnNext.onclick = ()=>{
-  currentPage++;
-  page.innerText = `Trang: ${currentPage}`
-  loadPage(currentPage);
+  filter["currentPage"] = filter["currentPage"] + 1;
+  page.innerText = `Trang: ${filter["currentPage"]}`
+  if (filter["search"] || filter["mang"] || filter["menh"]) {
+    
+    handler_page(200)
+  } else {
+    
+    handler_page(20)
+  }
+  loadPage(filter["currentPage"]);
 };
 btnPrev.onclick = ()=>{
-    if (currentPage > 1) {
-        currentPage--;
-        page.innerText = `Trang: ${currentPage}`
-        loadPage(currentPage);
+    if (filter["currentPage"] > 1) {      
+        filter["currentPage"] = filter["currentPage"] - 1;
+        page.innerText = `Trang: ${filter["currentPage"]}`
+        if (filter["search"] || filter["mang"] || filter["menh"]) {
+          
+          handler_page(200)
+        } else {
+          
+          handler_page(20)
+        }
+        loadPage(filter["currentPage"], false);
     }
     
 };
+function handler_page(page_size) {
+  filter["pageSize"] = page_size
+  filter["totalPage"] = page_size > 0
+    ? Math.ceil(filter.total / page_size)
+    : 0
+}
 
 function updatePaginationButtons(){
-  btnPrev.disabled = currentPage <= 1
-  btnNext.disabled = currentPage >= totalPage
+  btnPrev.disabled = filter["currentPage"] <= 1
+  btnNext.disabled = filter["currentPage"] >= filter["totalPage"]
 }
 
 
